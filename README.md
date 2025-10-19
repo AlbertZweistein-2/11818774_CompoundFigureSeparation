@@ -1,2 +1,2 @@
 # 11818774_CompoundFigureSeparation
-Project for TU Wien’s Applied Deep Learning course, inspired by my WU bachelor’s thesis. Addresses the lack of plug-and-play models for separating compound figures from scientific papers, providing a dataset and YOLO fine-tuning code.
+While carrying out my bachelor thesis on extracting metadata from scientific charts in papers, I stumbled across the problem of separating compound figures in their sub panels or sub figures. Figures in scientific papers can be made up of multiple charts, or any kind of sub figures, or a combination of both. To extract specific information from parts of scientific figures, splitting 
