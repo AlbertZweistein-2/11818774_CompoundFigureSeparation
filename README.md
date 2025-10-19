@@ -4,7 +4,7 @@
 [2 Relevant Scientific Literature](#2-relevant-scientific-literature)  
 [3 Scope](#3-scope)  
 [4 Summary](#4-summary)  
-[5 Deliverables for Assignment 1 of Applied Deep Learning Course, TU Wien](#5-deliverables-for-assignment-1-of-applied-deep-learning-course-tu-wien)  
+[5 Exact Deliverables for Assignment 1 of Applied Deep Learning Course, TU Wien](#5-exact-deliverables-for-assignment-1-of-applied-deep-learning-course-tu-wien)  
 [6 Bibliography](#6-bibliography)
 
 ## 1 Problem Statement  
