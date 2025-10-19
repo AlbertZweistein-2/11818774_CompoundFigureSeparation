@@ -74,9 +74,9 @@ See [Bibliography](#6-bibliography) section below.
 | Dataset: real extraction | PDF parsing (Docling), filtering, curation | **3-4 days** |
 | Dataset: manual labeling | Label the extracted figures | **5-6 days** |
 | Model design & setup | Select YOLO variant, configure data pipeline, choose suitable loss function | **1–2 days** |
-| Training & fine-tuning | baseline runs, LR/aug tweaks, checkpoints | **2-4 days** |
-| Evaluation | metrics (mAP@IoU, recall), error analysis on real test set | **2-4 days** |
-| Minimal application | CLI/notebook demo to run on new images | **1-2 days** |
+| Training & fine-tuning | baseline runs, tweaks, checkpoints | **2-4 days** |
+| Evaluation | metrics, error analysis on real test set | **2-4 days** |
+| Minimal application | demo to run on new images | **1-2 days** |
 | Final report | concise write-up (method, data, results, limits) | **1-2 days** |
 | Presentation | 6–8 slides with demo screenshots | **1 day** |
 
