@@ -5,7 +5,9 @@
 [3 Scope](#3-scope)  
 [4 Summary](#4-summary)  
 [5 Exact Deliverables for Assignment 1 of Applied Deep Learning Course, TU Wien](#5-exact-deliverables-for-assignment-1-of-applied-deep-learning-course-tu-wien)  
-[6 Bibliography](#6-bibliography)
+[6 Plan for now](#6-plan-for-now)<br>
+[Bibliography](#bibliography)
+[Notes](#notes)
 
 ## 1 Problem Statement  
 During my bachelor thesis on extracting metadata from scientific charts in research papers, I encountered the challenge of separating **compound figures** into their individual **sub-figures** or **panels**. Scientific figures often combine multiple charts, diagrams, or images within a single composite figure. To analyze or extract information from specific parts of such figures, it is essential to first **split compound figures into their individual components**.
@@ -80,7 +82,45 @@ See [Bibliography](#6-bibliography) section below.
 | Final report | concise write-up (method, data, results, limits) | **1-2 days** |
 | Presentation | 6–8 slides with demo screenshots | **1 day** |
 
-## 6 Bibliography
+
+# 6 Plan for now
+## 6.1 ToDos
+[ ] Gather Datasets to use
+    - Find open source dataset of figures from different papers to combine for
+      the synthetical dataset.
+    - Find a dataset with real figures and use real compound figures and label them.
+[ ] Generate synthetic dataset from selected datasets
+[ ] Generate dataset from real compound figures with bounding boxes.
+
+## 6.2 Questions to solve
+- What are the bounding boxes for a compound figure where axes overlap other
+  subfigure areas?
+- What to do with figures that share axis (especially plots?) -> Treat them as one.
+  -> Can Yolo pick up on such subtle differences like, only one axis for two plots,
+     so they are one figure?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Bibliography
 [1] Tianyuan Yao, et al. **Compound Figure Separation of Biomedical Images with Side Loss.** *arXiv preprint arXiv:2107.08650*, 2021. [https://arxiv.org/abs/2107.08650](https://arxiv.org/abs/2107.08650); **GitHub**: https://github.com/hrlblab/ImageSeperation
 
 [2] Tianyuan Yao, et al. **Compound Figure Separation of Biomedical Images: Mining Large Datasets for Self-supervised Learning.** *arXiv preprint arXiv:2208.14357*, 2022. https://arxiv.org/abs/2208.14357;
@@ -93,3 +133,14 @@ See [Bibliography](#6-bibliography) section below.
 
 
 *Prepared by Tobias Ponesch (11818774) for the TU Wien course “Applied Deep Learning”, WS2025.*
+
+
+
+
+# Notes
+Possible Datasets:
+
+
+
+
+
