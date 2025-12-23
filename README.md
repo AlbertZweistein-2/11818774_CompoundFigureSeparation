@@ -64,7 +64,7 @@ Instead of purely tuning hyperparameters, the core complexity of this assignment
 * **Input Resolution:** 960px (Optimized to resolve small axis text)
 * **Error Metric:** mAP50-95 (mean Average Precision)
 * **Target:** 0.50
-* **Achieved:** **[INSERT FINAL mAP HERE]**
+* **Achieved:** **0.58**
 
 **Optimization Strategy:**
 The optimization involved scaling the model architecture (Nano $\to$ Small) and increasing input resolution (640px $\to$ 960px). The resolution increase was critical to resolving fine-grained elements like shared axes and labels, which were lost at lower resolutions.
@@ -78,7 +78,7 @@ Training was performed on a local workstation to leverage high VRAM for larger b
 * **Environment:** Python 3.12, PyTorch 2.9, CUDA 12.8
 
 **Runtime:**
-* Total training time (40 Epochs): **[INSERT TIME, e.g. ~1.5 hours]**
+* Total training time (40 Epochs): **~1.7 hours**
 * Inference speed: ~2ms per image (TensorRT/FP16)
 
 ### 5.4 Time Tracking (Estimate)
