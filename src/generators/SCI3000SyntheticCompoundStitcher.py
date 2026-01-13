@@ -1,32 +1,48 @@
+"""
+SCI-3000 Synthetic Compound Stitcher
+-----------------------------------
+Takes single SCI-3000 assets + labels and stitches them into compound figures
+with YOLO labels for the combined layout. Supports class oversampling and
+variable grid layouts to diversify compositions.
+"""
+
 import json
-import cv2
-import numpy as np
 import random
 import os
 from pathlib import Path
-from tqdm import tqdm
 from datetime import datetime
 
-# --- KONFIGURATION ---
+import cv2
+import numpy as np
+from tqdm import tqdm
+
+# --- CONFIGURATION ---
 NUM_IMAGES_TO_GENERATE = 10000
 
-# Paths (make sure these match your folder structure)
+# Input assets (single panels + JSON labels)
 ASSET_DIR = Path("../../dataset/02_assets/SCI-3000-Singles")
 JSON_INPUT_PATH = Path("../../dataset/02_assets/SCI-3000-Singles/single_labels.json")
 
+# Output locations for stitched compounds
 OUT_ROOT = Path("../../dataset/03_intermediate/SCI-3000_synthetic-generated")
 OUT_IMG_DIR = OUT_ROOT / "images"
 OUT_LBL_DIR = OUT_ROOT / "yolo-labels"
 OUT_JSON_FILE = OUT_ROOT / "synthetic_labels.json"
 OUT_CLASSES_FILE = Path("../../dataset/classes.json")
 
-# TARGET WIDTH (typical figure width in high-res)
-PAGE_WIDTH = 1600 
+# Target width for final canvas (height derived from layout)
+PAGE_WIDTH = 1600
 
+# Oversample certain classes to balance rare categories in the synthetic pool
 OVERSAMPLE_RULES = {
-    "Table": 20, "Image": 10, "Chart": 1, "Subplot": 1, "Illustration": 2
+    "Table": 20,
+    "Image": 10,
+    "Chart": 1,
+    "Subplot": 1,
+    "Illustration": 2,
 }
 
+# Label mapping consistent with Label Studio export
 LABEL_STUDIO_MAPPING = [
     {"id": 0, "name": "Chart"},
     {"id": 1, "name": "Illustration"},
@@ -38,24 +54,24 @@ LABEL_STUDIO_MAPPING = [
     {"id": 7, "name": "Shared Y-Axis"},
     {"id": 8, "name": "Subpanel"},
     {"id": 9, "name": "Table"},
-    {"id": 10, "name": "Subplot"}
+    {"id": 10, "name": "Subplot"},
 ]
 
-# Grid Wahrscheinlichkeiten (Row, Col)
+# Grid probabilities (rows, cols). Lower weights for extreme stripe layouts.
 GRID_CHOICES = [
-    ((1, 1), 5), 
+    ((1, 1), 5),
     ((1, 2), 20), ((2, 1), 20),
     ((2, 2), 30),
     ((1, 3), 10), ((3, 1), 5),
     ((2, 3), 5),  ((3, 2), 5),
     ((2, 4), 5),  ((4, 2), 2),
-    # Make extreme layouts less frequent to avoid mostly stripe-like figures
-    ((1, 4), 5), 
+    ((1, 4), 5),
     ((1, 5), 2),
-    ((2, 1), 5)
+    ((2, 1), 5),
 ]
 
 def setup_directories():
+    """Ensure output dirs exist and persist class mapping for reference."""
     OUT_IMG_DIR.mkdir(parents=True, exist_ok=True)
     OUT_LBL_DIR.mkdir(parents=True, exist_ok=True)
     mapping_dict = {"categories": LABEL_STUDIO_MAPPING, "info": {"version": "1.0"}}
@@ -64,8 +80,8 @@ def setup_directories():
     return {item['name']: item['id'] for item in LABEL_STUDIO_MAPPING}
 
 def load_and_oversample_assets(name_to_id):
+    """Load single assets and oversample rare classes into the sampling pool."""
     print("Loading assets...")
-    # Error handling if the JSON file is missing
     if not JSON_INPUT_PATH.exists():
         print(f"ERROR: {JSON_INPUT_PATH} not found!")
         return []
@@ -73,130 +89,118 @@ def load_and_oversample_assets(name_to_id):
     with open(JSON_INPUT_PATH, 'r') as f:
         data = json.load(f)
     pool = []
-    
-    # Counter for debugging
-    counts = {k:0 for k in OVERSAMPLE_RULES.keys()}
-    
+    counts = {k: 0 for k in OVERSAMPLE_RULES.keys()}
+
     for filename, label in data.items():
-        if label not in name_to_id: continue
-        
-        # Path check (sometimes paths in the JSON differ from the filesystem)
-        full_path = ASSET_DIR / filename
-        if not full_path.exists(): 
+        if label not in name_to_id:
             continue
-            
+
+        full_path = ASSET_DIR / filename
+        if not full_path.exists():
+            continue
+
         factor = OVERSAMPLE_RULES.get(label, 1)
         item = {"path": str(full_path), "label": label, "class_id": name_to_id[label]}
-        
-        for _ in range(factor): 
+
+        for _ in range(factor):
             pool.append(item)
-            if label in counts: counts[label] += 1
-            
+            if label in counts:
+                counts[label] += 1
+
     print(f"Pool size: {len(pool)} assets.")
     return pool
 
 def get_random_grid():
+    """Sample a (rows, cols) grid according to weighted layout choices."""
     grids, weights = zip(*GRID_CHOICES)
     return random.choices(grids, weights=weights, k=1)[0]
 
 def create_compound(idx, asset_pool):
+    """Create one compound figure from the asset pool and return img + labels.
+
+    Returns None if the pool is too small for the sampled grid.
+    """
     rows, cols = get_random_grid()
     num_slots = rows * cols
-    
+
     if len(asset_pool) < num_slots:
         return None
 
     selection = random.sample(asset_pool, num_slots)
-    
+
     # --- LAYOUT LOGIC: PAGE FLOW ---
-    # Build the figure from top to bottom.
-    
-    bg_gray = random.randint(245, 255) # Very light gray/white
-    
-    # Define margins
+    # Build the figure from top to bottom with randomized gaps/padding.
+    bg_gray = random.randint(245, 255)  # very light background
+
     outer_pad = random.randint(20, 50)
     gap_x = random.randint(10, 30)
     gap_y = random.randint(20, 50)
-    
-    # Available width for content
+
     content_width = PAGE_WIDTH - (2 * outer_pad)
-    
-    # Breite pro Spalte (Zelle)
-    # (Content Width - (Alle Gaps)) / Anzahl Spalten
     col_width = int((content_width - ((cols - 1) * gap_x)) / cols)
-    
-    # First compute the final canvas height.
-    # We do this by simulating placement row by row.
-    
-    row_buffers = [] # Speichert (Image, LabelInfo) pro Zeile
-    
+
+    # Pre-pass: compute canvas height and store resized rows
+    row_buffers = []  # (images, label info) per row
     current_asset_idx = 0
     total_canvas_height = outer_pad
-    
-    for r in range(rows):
+
+    for _ in range(rows):
         row_items = []
         max_row_h = 0
-        
-        for c in range(cols):
+
+        for _ in range(cols):
             asset = selection[current_asset_idx]
             current_asset_idx += 1
-            
+
             img = cv2.imread(asset["path"])
-            if img is None: 
-                # Fallback: create an empty white image
+            if img is None:
                 img = np.ones((100, 100, 3), dtype=np.uint8) * 255
-            
-            # Resize to column width (keep aspect ratio)
+
             h_img, w_img = img.shape[:2]
             scale = col_width / w_img
-            new_w = col_width # Exakt Spaltenbreite
+            new_w = col_width
             new_h = int(h_img * scale)
-            
+
             resized = cv2.resize(img, (new_w, new_h))
-            
+
             row_items.append({
                 "img": resized,
                 "label": asset["label"],
                 "class_id": asset["class_id"],
                 "h": new_h,
-                "w": new_w
+                "w": new_w,
             })
-            
+
             if new_h > max_row_h:
                 max_row_h = new_h
-        
-        # Row prepared; store it.
+
         row_buffers.append({
             "items": row_items,
-            "height": max_row_h
+            "height": max_row_h,
         })
-        
+
         total_canvas_height += max_row_h + gap_y
 
-    # Remove last gap + add bottom padding
-    total_canvas_height = total_canvas_height - gap_y + outer_pad
-    
-    # --- CANVAS ERSTELLEN ---
+    total_canvas_height = total_canvas_height - gap_y + outer_pad  # remove last gap, add bottom pad
+
+    # --- RENDERING ---
     canvas = np.ones((total_canvas_height, PAGE_WIDTH, 3), dtype=np.uint8) * bg_gray
-    
+
     yolo_labels = []
     json_labels = []
-    
-    # --- RENDERN ---
+
     current_y = outer_pad
-    
+
     for row_data in row_buffers:
         row_h = row_data["height"]
         items = row_data["items"]
-        
+
         for c, item in enumerate(items):
             img = item["img"]
             h, w = item["h"], item["w"]
-            
-            # X Position
+
             x_pos = outer_pad + c * (col_width + gap_x)
-            
-            # Y position (center within row for better alignment with varying heights)
+            # center vertically within row to tolerate varying heights
             y_pos = current_y + (row_h - h) // 2
             
             # Paste

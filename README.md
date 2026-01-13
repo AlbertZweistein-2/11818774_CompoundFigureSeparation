@@ -46,9 +46,37 @@ This project addresses the lack of a general-purpose solution for compound figur
 
 ---
 
+## 4.1 Setup & Installation
+- **Python:** 3.12 (>=3.10 should work)
+- **Env:** `python -m venv .venv && source .venv/bin/activate`
+- **Install:** `pip install --upgrade pip` then `pip install -r requirements.txt` (for CUDA wheels follow https://pytorch.org if GPU is available; CPU-only also works for inference/tests).
+
+## 4.2 Paths & Portability
+- Dataset configs are now relative: see [dataset/04_all_classes/data.yaml](dataset/04_all_classes/data.yaml), [dataset/05_selected_classes/data.yaml](dataset/05_selected_classes/data.yaml), and [dataset/06_compound_chart_splitter/data.yaml](dataset/06_compound_chart_splitter/data.yaml).
+- To rewrite split lists to relative paths (if you copied data to a new machine): run `python src/utils/make_splits_relative.py` once after syncing the repo (handles 04/05/06 splits).
+
+## 4.3 Pipeline (Raw → Assemble → Train → Eval)
+1) **Extraction (Real):** Use [src/notebooks/01_Extraction_SCI3000.ipynb](src/notebooks/01_Extraction_SCI3000.ipynb) with SCI-3000 PDFs + JSON annotations → exports figures + metadata into `dataset/03_intermediate/SCI-3000_real-compound/`.
+2) **Synthetic Generation:** Use [src/generators/SCI3000SyntheticCompoundStitcher.py](src/generators/SCI3000SyntheticCompoundStitcher.py) and [src/generators/CompoundPlotGenerator.py](src/generators/CompoundPlotGenerator.py) to create synthetic compound figures → outputs in `dataset/03_intermediate/SCI-3000_synthetic-generated/` and `dataset/03_intermediate/SyntheticCompoundPlots/`.
+3) **Assembly:** Run [src/notebooks/03_Dataset_Assembly.ipynb](src/notebooks/03_Dataset_Assembly.ipynb) to merge real + synthetic, generate YOLO splits and labels → materialized in `dataset/04_all_classes/` and `dataset/05_selected_classes/` (and optional `dataset/06_compound_chart_splitter/`).
+4) **Training:** Use [src/notebooks/04_Train_YOLO_Baseline.ipynb](src/notebooks/04_Train_YOLO_Baseline.ipynb) with `data.yaml` from the chosen dataset → training outputs in `runs/detect/...`.
+5) **Evaluation/Visualization:** Use [src/notebooks/05_YOLO_result_visualization.ipynb](src/notebooks/05_YOLO_result_visualization.ipynb) to plot metrics and qualitative examples from `runs/detect/...`.
+
+## 4.4 Tests
+- **Dataset integrity:** `pytest tests/test_dataset_integrity.py` checks YOLO label files vs. images. Override dataset root via env: `DATASET_ROOT=dataset pytest tests/test_dataset_integrity.py`.
+- **GPU availability:** `pytest tests/test_gpu_availability.py` (skips automatically if keine GPU). Force skip on CPU/CI: `SKIP_GPU_TEST=1 pytest tests/test_gpu_availability.py`.
+
+---
+
 ## 5 Assignment 2: Hacking & Baseline Results
 
 For Assignment 2, the focus shifted from planning to **Data Engineering**, establishing a **Baseline Model**, and optimizing for hardware constraints.
+
+### 5.0 Deliverables (Assignment 2)
+- **Error Metric:** mAP50-95 (COCO style), evaluated on the held-out validation split of the assembled YOLO dataset (see dataset/04_all_classes).
+- **Target vs. Achieved:** Target mAP50-95 = **0.50**; Achieved = **0.58** with YOLOv11s @ 960px.
+- **Hardware/Runtime:** Local RTX 3090, ~1.7h for 40 epochs (see specs below).
+- **Time Tracking:** See table in section 5.4 (total ≈ 59h).
 
 ### 5.1 Data Engineering Strategy
 Instead of purely tuning hyperparameters, the core complexity of this assignment was **Data-Centric AI**.
@@ -90,6 +118,9 @@ Training was performed on a local workstation to leverage high VRAM for larger b
 | Real Compound Figure labeling (Label Studio) | ~20h |
 | Pipeline & Splitting Logic | ~8h |
 | Model Training & Debugging | ~8h |
+| Repository Cleanup and Documentation | ~Xh |
+| Final Dataset preparation and release | ~Xh |
+| **Total** | **~XXh** |
 
 ---
 

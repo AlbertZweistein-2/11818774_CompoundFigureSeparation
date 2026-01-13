@@ -1,3 +1,11 @@
+"""
+Compound Plot Generator
+-----------------------
+Generates synthetic compound plots (matplotlib) with YOLO labels. Config is
+provided via CompoundPlotConfig.py. Outputs images and YOLO label files under
+cfg.OUTPUT_DIR.
+"""
+
 import os
 import random
 import string
@@ -20,7 +28,7 @@ os.makedirs(LBL_DIR, exist_ok=True)
 WORDS = [
     "Analysis", "Distribution", "Correlation", "Growth", "Variance", "Heatmap",
     "Spectroscopy", "Cluster", "Regression", "Frequency", "Response", "Yield",
-    "Error", "Simulation", "Model", "Metric"
+    "Error", "Simulation", "Model", "Metric",
 ]
 
 
@@ -29,6 +37,7 @@ def clamp(v: float, lo: float, hi: float) -> float:
 
 
 def bbox_to_yolo(b: Bbox, w: int, h: int) -> Optional[str]:
+    """Convert a matplotlib Bbox to YOLO xywh (normalized)."""
     if b is None:
         return None
     x0, y0, x1, y1 = b.x0, b.y0, b.x1, b.y1
@@ -49,10 +58,12 @@ def bbox_to_yolo(b: Bbox, w: int, h: int) -> Optional[str]:
 
 
 def pick_layout() -> Tuple[int, int]:
+    """Sample (rows, cols) layout based on config weights."""
     return random.choices(cfg.LAYOUTS, weights=cfg.LAYOUT_WEIGHTS, k=1)[0]
 
 
 def compute_figsize(nr: int, nc: int) -> Tuple[float, float]:
+    """Compute matplotlib figsize to hit min/max pixel constraints."""
     w_in = 3.2 * nc + 1.2
     h_in = 2.7 * nr + 1.3
 
@@ -83,9 +94,7 @@ def gen_enum_token(kind: str) -> str:
 
 
 def gen_shared_title() -> Tuple[str, str]:
-    """
-    Returns (title_text, strategy) where strategy in {"text","enum"}.
-    """
+    """Return (title_text, strategy) with either free text or enumerated token."""
     strat = random.choices(
         list(cfg.TITLE_CONTENT_STRATEGY.keys()),
         weights=list(cfg.TITLE_CONTENT_STRATEGY.values()),
@@ -109,6 +118,7 @@ def make_panel_label(i: int) -> str:
 
 
 def plot_into_ax(ax, ptype: str, seed: int, cmap: str):
+    """Draw a simple synthetic plot of the requested type into the axis."""
     rng = np.random.default_rng(seed)
     x = np.linspace(0, 10, 60)
 

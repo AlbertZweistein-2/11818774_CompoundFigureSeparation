@@ -1,20 +1,28 @@
-import streamlit as st
-import os
+"""Streamlit app for single-image classification into SCI-3000 label set.
+
+Usage:
+- Loads images + existing labels from single_labels.json in the selected folder.
+- Choose one of the predefined classes; saves immediately back to JSON.
+- Navigation via Prev/Next or jump-to index.
+"""
+
 import json
+import os
+
 from PIL import Image
+import streamlit as st
 
 st.set_page_config(layout="wide", page_title="Single Label Reviewer (Advanced)")
 
-# --- CLASS DEFINITION ---
-# Define the available categories
+# Available categories
 CLASSES = ["Chart", "Illustration", "Image", "Table", "Other"]
 
 def main():
     st.title("Advanced Figure Classifier")
-    st.markdown("Classify images into precise categories.")
+    st.markdown("Classify images into precise categories. Labels are saved to single_labels.json in the selected folder.")
 
     # Path setup
-    default_dir = "../../dataset/raw/SCI-3000-Singles" # Adjust to your path
+    default_dir = "../../dataset/raw/SCI-3000-Singles"  # Adjust if needed
     
     # Sidebar options
     base_dir = st.sidebar.text_input("Directory", default_dir)
@@ -36,16 +44,16 @@ def main():
         return
     
     # Session state
-    if 'idx' not in st.session_state: st.session_state.idx = 0
+    if 'idx' not in st.session_state:
+        st.session_state.idx = 0
     # Bounds check if the directory changes
-    if st.session_state.idx >= len(all_files): st.session_state.idx = 0
+    if st.session_state.idx >= len(all_files):
+        st.session_state.idx = 0
     
     current_file = all_files[st.session_state.idx]
     
     # --- LABEL LOGIC ---
-    # Load the label from JSON.
-    # If there is an older label (e.g. just "Chart" or "Other"),
-    # it is still used and can be changed in the UI.
+    # Load existing label; keep older labels but allow overwrite in UI
     current_label = labels.get(current_file, "Other")
     
     # Fallback: if the JSON contains a label not in our list

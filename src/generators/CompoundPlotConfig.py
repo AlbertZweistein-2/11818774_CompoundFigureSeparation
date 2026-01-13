@@ -1,4 +1,12 @@
-# CompoundPlotConfig.py
+"""
+Config for Compound Plot Generator
+----------------------------------
+Controls output location, sampling weights for layouts and sharing modes,
+plot styles, and class mapping for YOLO labels. Tweaking values here changes
+the diversity of generated synthetic compound plots.
+"""
+
+# Output root for generated images + YOLO labels
 
 OUTPUT_DIR = "../../dataset/03_intermediate/SyntheticCompoundPlots"
 NUM_IMAGES_TO_GENERATE = 2500
@@ -6,8 +14,7 @@ NUM_IMAGES_TO_GENERATE = 2500
 LAYOUTS = [(1, 2), (1, 3), (1, 4), (2, 2), (2, 3), (3, 2), (3, 3), (4, 2)]
 LAYOUT_WEIGHTS = [0.14, 0.20, 0.08, 0.22, 0.18, 0.08, 0.06, 0.04]
 
-# X darf nur in SPALTEN geteilt werden
-# Y darf nur in REIHEN geteilt werden
+# X sharing applies per column; Y sharing applies per row
 PROBS = {
     "x_mode_col_shared_ticks": 0.45,
     "x_mode_col_shared_title_only": 0.35,

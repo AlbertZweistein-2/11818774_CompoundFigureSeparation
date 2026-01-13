@@ -1,14 +1,30 @@
+"""Dataset integrity checks for YOLO label/image pairs.
+
+What it does:
+- Walks configured label folders and validates format + coordinate bounds.
+- Asserts that each label has a matching image alongside it.
+
+Usage:
+- Optionally set DATASET_ROOT to point to an unpacked dataset copy.
+"""
+
 import os
-import pytest
 from pathlib import Path
+
+import pytest
 from PIL import Image
 
-DATASET_ROOT = Path(__file__).parent.parent / "dataset"
+
+# Allow overriding dataset root via env for portability
+DATASET_ROOT = Path(os.getenv("DATASET_ROOT", Path(__file__).parent.parent / "dataset"))
 
 TARGET_FOLDERS = [
-    DATASET_ROOT / "04_model_ready/labels/train",
-    DATASET_ROOT / "04_model_ready/labels/val",
-    DATASET_ROOT / "04_model_ready/labels/test"
+    DATASET_ROOT / "04_all_classes/labels/train",
+    DATASET_ROOT / "04_all_classes/labels/val",
+    DATASET_ROOT / "04_all_classes/labels/test",
+    DATASET_ROOT / "05_selected_classes/labels/train",
+    DATASET_ROOT / "05_selected_classes/labels/val",
+    DATASET_ROOT / "05_selected_classes/labels/test",
 ]
 
 def get_label_files():
