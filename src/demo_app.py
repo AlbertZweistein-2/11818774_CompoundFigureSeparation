@@ -36,6 +36,7 @@ STANDARD_MODELS = [
 
 st.set_page_config(page_title=PAGE_TITLE, page_icon=PAGE_ICON, layout=LAYOUT)
 
+@st.cache_resource
 def load_model(model_path):
     """Loads a YOLO model."""
     return YOLO(model_path)
@@ -212,6 +213,9 @@ def main():
 
     # Inference & Visualization
     if image is not None and selected_model_name:
+        # Button
+        run_analysis = st.button("Separation Analysis", type="primary")
+
         # Display Input
         col1, col2 = st.columns(2)
         with col1:
@@ -219,7 +223,8 @@ def main():
              img_placeholder.image(image, caption=f"Original: {original_image_name}", width='stretch')
 
         # Run Inference
-        if st.button("Separation Analysis", type="primary"):
+        if run_analysis:
+
             # Ensure model is ready (download if needed)
             model_path = ensure_model_available(selected_model_name)
             
@@ -300,6 +305,8 @@ def main():
                                      # Need original PIL image back to numpy or draw on PIL
                                      # Since res_image is already a result, let's reload or copy original 'image'
                                      gt_image = image.copy()
+                                     if gt_image.mode != "RGB":
+                                         gt_image = gt_image.convert("RGB")
                                      gt_draw_np = np.array(gt_image)
                                      
                                      # If it's RGB (PIL default), OpenCV expects BGR usually, but we can just use BGR colors and keep it as is if we display with st.image
