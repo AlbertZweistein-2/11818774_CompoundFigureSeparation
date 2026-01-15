@@ -223,9 +223,9 @@ marimo/_lsp/
 __marimo__/
 
 dataset/
-
 data_links/
+
+models/
 
 
 *.pt
-# runs/

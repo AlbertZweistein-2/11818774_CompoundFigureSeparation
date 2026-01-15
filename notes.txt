@@ -1,0 +1,108 @@
+0) Vorab: 2 Entscheidungen, die alles vereinfachen
+Wo landen Outputs (Predictions/Evals/Plots)?
+Empfehlung: ein konsistenter Ordner, z. B. artifacts/ (lokal, ignoriert) und für „Belegbilder“ ein kleiner docs/assets/ (committed).
+Hintergrund: In 05_YOLO_result_visualization.ipynb wird aktuell z. B. nach prediction_visualizations/ geschrieben (und es gibt harte Pfade zu runs/.../best.pt). Das wird sonst später überall anders.
+
+05 & 06 zusammenlegen oder getrennt?
+Ich würde getrennt lassen, aber inhaltlich klar machen:
+
+05 = Qualitativ (Beispiele, Failure modes, Bilder exportieren)
+06 = Quantitativ (Test-mAP, per-class metrics, Tabellenexport)
+Zusammenlegen macht Notebooks schnell zu lang und unübersichtlich.
+Wenn du diese beiden Punkte bestätigst, ist der Rest geradlinig.
+
+1) Ordner fertig aufräumen (Definition “Done”)
+Ziel: Repo ist “clean”, keine riesigen Artefakte, klare Struktur.
+
+To‑Dos (beratend, ohne Ausführung):
+
+Große, generierte Ordner raus aus Git (falls noch tracked): runs, 04_all_classes etc. (je nach Policy).
+Einheitliche Ablage:
+notebooks nur Notebooks + evtl. Notebook-README
+generators Generatoren
+utils Hilfsskripte (z. B. dein make_splits_relative.py, evtl. umbenannt)
+optional docs/ für Screenshots/Belegbilder
+Alte/archivierte Notebooks: entweder nach src/notebooks/_archive/ oder klar markieren.
+Klärungsfrage: Soll dataset im Repo bleiben (leer als Struktur + README) oder komplett außerhalb über data_links?
+
+Wenn du willst: poste kurz ls -la im Repo-Root oder tree -L 2, dann kann ich dir eine konkrete “Zielstruktur” vorschlagen.
+
+Linux Terminal:
+
+2) Notebooks aufräumen (Definition “Done”)
+Ziel: Jeder Notebook-Run funktioniert “von oben nach unten” und hat am Anfang:
+
+Purpose
+Inputs/Outputs
+Runtime/Hardware Hinweise
+fixe Seeds wo sinnvoll
+keine absoluten Pfade (bei dir in 05 aktuell problematisch)
+Priorität:
+
+03_Dataset_Assembly.ipynb: ist schon sehr gut dokumentiert, aber du kannst noch:
+klar markieren, welche Section “final” ist vs “archived”
+überall relative Pfade forcieren (du hast das über dein Script schon erledigt, gut)
+04_Train_YOLO_Baseline.ipynb: “Run commands + Hyperparams + wie finde ich best.pt”
+05/06: siehe nächster Punkt
+3) Notebook 05 + 06 erstellen / dokumentieren (bzw. finalisieren)
+Du hast bereits 05_YOLO_result_visualization.ipynb. Excerpt zeigt:
+
+model = YOLO('/home/.../runs/detect/.../best.pt') (hardcoded)
+Output prediction_visualizations/ im Repo-Root
+Plan für 05 (“Qualitative Results”):
+
+Parameter-Zelle: RUN_DIR oder WEIGHTS_PATH (relativ), DATASET (04/05/06), SPLIT (val/test)
+Output standardisieren: artifacts/predictions/<run_name>/...
+Ein kleines Kapitel “Failure modes” mit 6–12 Beispielbildern (und 1–2 davon nach docs/assets/)
+Plan für 06 (“Test Evaluation”):
+
+Fokus: nur Testsplit, keine interaktiven Spielereien
+Export: artifacts/metrics/test_summary.csv + optional JSON
+Eine Tabelle “per class AP” + confusion-ish summary (falls verfügbar)
+Wichtig für Ass2: 06 sollte die Grundlage sein für deine “Übersicht der Test Ergebnisse” im Root-README.md.
+
+4) README für notebooks erstellen
+Ziel: Jemand versteht in 60 Sekunden die Reihenfolge und wofür welches Notebook ist.
+
+Inhalt (kurz):
+
+“Run order” (01 → 03 → 04 → 06 → 05)
+Welche sind optional
+Welche Datenpfade erwartet werden (data_links Hinweis)
+Was wird generiert (z. B. 04_all_classes, runs/detect/...)
+5) .gitignore richtig machen (Definition “Done”)
+Ziel: Keine riesigen Artefakte mehr in PRs/Commits.
+
+Typische Einträge (als Policy, nicht als Umsetzung):
+
+runs
+dataset (oder selektiv dataset/** außer evtl. README.md)
+prediction_visualizations/ (oder besser: künftig unter artifacts/)
+artifacts/
+.venv, __pycache__/, .ipynb_checkpoints/
+große Rohdaten in data_links (falls die nur Symlinks/Paths sind: erklären, aber nicht tracken)
+Klärungsfrage: Willst du die synthetischen Datasets (z. B. SyntheticCompoundPlots) im Repo behalten oder ebenfalls ignorieren und nur lokal erzeugen?
+
+Mini-Update zur Reihenfolge (optimiert)
+Ich würde es so staffeln:
+
+Ordner aufräumen (inkl. Output-Policy festlegen: artifacts/ vs prediction_visualizations/)
+.gitignore fixen (damit du beim Notebook-Aufräumen nicht ständig Mist committest)
+Notebooks aufräumen
+05/06 finalisieren + dokumentieren
+Notebook-README
+Wenn du mir sagst, ob dataset ins Repo soll (ja/nein/teilweise), kann ich dir als nächsten Schritt eine konkrete “Target-State”-Checkliste geben (ohne Änderungen auszuführen).
+
+
+Ok, lets get back to our general plan of finishing this project. The presentation is done now. Whats still missing for Assignment 2 and 3? 
+- Finishing cleaning the repo
+- Finishing main README
+- Finishing other READMEs
+- Upload dataset to Hugginface
+- Upload best models to Huggingface
+- Create script to download the dataset
+- Create script to train a custom YOLO model, with parameters given via command line
+- Demo Application, for the three usecases/datasets, where you can select the model, then it is pulled from huggingface if necessary, and you can either select an image from the test set and it visualizes the true labels and the predictions side by side or it predicts on your uploaded image. We will do this with streamlit.
+- Write report
+
+- What else is missing, that we have talked about before?

@@ -1,20 +1,16 @@
-# Core DL/YOLO
 ultralytics>=8.3.0
-torch>=2.2.0
-torchvision>=0.17.0
-
-# Data handling / plotting
-numpy>=1.26
-pandas>=2.1
-matplotlib>=3.8
-opencv-python>=4.9
-pillow>=10.0
-tqdm>=4.66
-pyyaml>=6.0
-
-# PDF extraction for SCI-3000, only if dataset is generated from PDFs
-# pymupdf>=1.24
-
-# App / tooling
-streamlit>=1.30
-pytest>=8.0
+torch>=2.0.0
+torchvision
+pandas
+matplotlib
+opencv-python-headless
+notebook
+ipywidgets
+pytest
+streamlit
+scikit-learn
+seaborn
+tqdm
+PyYAML
+requests
+huggingface_hub

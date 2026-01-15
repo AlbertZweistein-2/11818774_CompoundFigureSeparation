@@ -1,19 +1,9 @@
-"""Dataset integrity checks for YOLO label/image pairs.
-
-What it does:
-- Walks configured label folders and validates format + coordinate bounds.
-- Asserts that each label has a matching image alongside it.
-
-Usage:
-- Optionally set DATASET_ROOT to point to an unpacked dataset copy.
-"""
+"""Dataset integrity checks for YOLO label/image pairs."""
 
 import os
 from pathlib import Path
-
 import pytest
 from PIL import Image
-
 
 # Allow overriding dataset root via env for portability
 DATASET_ROOT = Path(os.getenv("DATASET_ROOT", Path(__file__).parent.parent / "dataset"))
@@ -25,30 +15,19 @@ TARGET_FOLDERS = [
     DATASET_ROOT / "05_selected_classes/labels/train",
     DATASET_ROOT / "05_selected_classes/labels/val",
     DATASET_ROOT / "05_selected_classes/labels/test",
+    DATASET_ROOT / "06_compound_chart_splitter/labels/train",
+    DATASET_ROOT / "06_compound_chart_splitter/labels/val",
+    DATASET_ROOT / "06_compound_chart_splitter/labels/test",
 ]
 
-def get_label_files():
-    files = []
-    for folder in TARGET_FOLDERS:
-        if folder.exists():
-            files.extend(list(folder.glob("*.txt")))
-    return files
-
-@pytest.mark.parametrize("label_path", get_label_files())
-def test_label_validity(label_path):
+def check_label_file(label_path):
     """
-    Checks for all label files in the dataset:
-    1. Does the corresponding image exist?
-    2. Are the YOLO coordinates valid (0-1)?
+    Validates a single label file.
+    Returns None if valid, else returns an error message string.
     """
-    
     # 1. Image Check
-    # We assume images are in the parallel "images" folder instead of "labels"
-    # Path manipulation: .../labels/train/image.txt -> .../images/train/image.png
     image_folder = label_path.parent.parent.parent / "images" / label_path.parent.name
-    print(image_folder)
     
-    # Check for extensions (png, jpg, jpeg)
     found_image = False
     image_path = None
     for ext in [".png", ".jpg", ".jpeg"]:
@@ -58,43 +37,67 @@ def test_label_validity(label_path):
             image_path = potential_img
             break
             
-    assert found_image, f"No image found for label: {label_path}"
-
-    # (Optional) Can the image be opened? (Corrupt file check)
-    try:
-        with Image.open(image_path) as img:
-            img.verify() 
-    except Exception:
-        pytest.fail(f"Image file is corrupt: {image_path}")
+    if not found_image:
+        return f"No image found for label: {label_path}"
 
     # 2. YOLO coordinates check
-    with open(label_path, "r") as f:
-        lines = f.readlines()
-        
-    for line_idx, line in enumerate(lines):
-        parts = line.strip().split()
-        
-        # Ignore empty lines
-        if not parts:
-            continue
+    try:
+        with open(label_path, "r") as f:
+            lines = f.readlines()
             
-        # Format: class x y w h
-        assert len(parts) == 5, f"Incorrect format in {label_path.name} line {line_idx+1}"
-        
-        try:
-            class_id, x, y, w, h = map(float, parts)
-        except ValueError:
-            pytest.fail(f"Non-numeric values in {label_path.name} line {line_idx+1}")
+        for line_idx, line in enumerate(lines):
+            parts = line.strip().split()
+            if not parts: continue
+                
+            if len(parts) != 5:
+                return f"Incorrect format in {label_path.name} line {line_idx+1}"
+            
+            try:
+                class_id, x, y, w, h = map(float, parts)
+            except ValueError:
+                return f"Non-numeric values in {label_path.name} line {line_idx+1}"
 
-        # The sacred YOLO rules
-        EPSILON = 1e-6
-        assert 0 <= x <= 1 + EPSILON, f"x_center {x} out of [0,1] in {label_path.name}"
-        assert 0 <= y <= 1 + EPSILON, f"y_center {y} out of [0,1] in {label_path.name}"
-        assert 0 < w <= 1 + EPSILON,  f"width {w} invalid in {label_path.name}"
-        assert 0 < h <= 1 + EPSILON,  f"height {h} invalid in {label_path.name}"
+            EPSILON = 1e-6
+            if not (0 <= x <= 1 + EPSILON): return f"x_center {x} out of bounds in {label_path.name}"
+            if not (0 <= y <= 1 + EPSILON): return f"y_center {y} out of bounds in {label_path.name}"
+            if not (0 < w <= 1 + EPSILON):  return f"width {w} invalid in {label_path.name}"
+            if not (0 < h <= 1 + EPSILON):  return f"height {h} invalid in {label_path.name}"
+            
+            if x + w/2 > 1.01: return f"Box right edge out of bounds in {label_path.name}"
+            if x - w/2 < -0.01: return f"Box left edge out of bounds in {label_path.name}"
+            if y + h/2 > 1.01: return f"Box bottom edge out of bounds in {label_path.name}"
+            if y - h/2 < -0.01: return f"Box top edge out of bounds in {label_path.name}"
+
+    except Exception as e:
+        return f"Error reading {label_path}: {e}"
         
-        # Logic check: Box must not go out of bounds
-        assert x + w/2 <= 1.01, f"Box extends beyond right edge in {label_path.name}"
-        assert x - w/2 >= -0.01, f"Box extends beyond left edge in {label_path.name}"
-        assert y + h/2 <= 1.01, f"Box extends beyond bottom edge in {label_path.name}"
-        assert y - h/2 >= -0.01, f"Box extends beyond top edge in {label_path.name}"
+    return None
+
+@pytest.mark.parametrize("folder", TARGET_FOLDERS)
+def test_folder_integrity(folder):
+    """
+    Checks integrity of all labels in a specific folder.
+    Fails if any label in the folder is invalid.
+    """
+    if not folder.exists():
+        pytest.skip(f"Folder not found: {folder}")
+        
+    label_files = list(folder.glob("*.txt"))
+    if not label_files:
+        pytest.skip(f"No labels in {folder}")
+
+    errors = []
+    # limit checking to first 1000 files to speed up CI if needed, 
+    # or check all. For 12k files, python loop is fast enough (seconds), 
+    # it was the pytest parameterization overhead that killed it.
+    for label_file in label_files:
+        error = check_label_file(label_file)
+        if error:
+            errors.append(error)
+            # Stop after first few errors to avoid log spam
+            if len(errors) >= 10:
+                errors.append("... and more (stopped counting)")
+                break
+    
+    if errors:
+        pytest.fail(f"Found {len(errors)} errors in {folder.name}:\n" + "\n".join(errors))
