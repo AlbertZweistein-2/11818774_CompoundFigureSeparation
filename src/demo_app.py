@@ -215,7 +215,8 @@ def main():
         # Display Input
         col1, col2 = st.columns(2)
         with col1:
-             st.image(image, caption=f"Original: {original_image_name}", use_column_width=True)
+             img_placeholder = st.empty()
+             img_placeholder.image(image, caption=f"Original: {original_image_name}", width='stretch')
 
         # Run Inference
         if st.button("Separation Analysis", type="primary"):
@@ -223,6 +224,22 @@ def main():
             model_path = ensure_model_available(selected_model_name)
             
             if model_path:
+                with st.spinner("Analyzing..."):
+                    model = load_model(model_path)
+                    
+                    # Inference
+                    results = model.predict(image, conf=conf_threshold)
+                    
+                    # Visualize
+                    res_plotted = results[0].plot()
+                    res_image = Image.fromarray(res_plotted[..., ::-1]) 
+                    
+                    with col2:
+                        # Fix: use_column_width deprecated -> use_container_width
+                        st.image(res_image, caption="Detected Subplots", width='stretch')
+                    
+                    # Show detected boxes/classes
+                    st.subheader("Detections")
                     boxes = results[0].boxes
                     if len(boxes) > 0:
                         data = []
@@ -235,9 +252,115 @@ def main():
                         st.dataframe(data)
                     else:
                         st.info("No objects detected.")
+                    
+                    # Show Ground Truth (if available)
+                    if input_source == "Sample from Test Set" and 'image_path' in locals():
+                         # Derive label path: replace 'images' parent with 'labels' and extension with .txt
+                         # Path structure: .../images/test/file.jpg -> .../labels/test/file.txt
+                         try:
+                             # We need to handle potential directory structures. 
+                             # Safest way: go up 2 levels from image file (test -> images -> root of subset) 
+                             # then go into labels -> test -> file.txt
+                             # BUT: "same level as the images directory" might mean .../dataset/images and .../dataset/labels
+                             
+                             # The `image_path` is a Path object.
+                             # Assumption: `image_path` = .../images/test/filename.jpg
+                             # Target: .../labels/test/filename.txt
+                             
+                             # Check if 'images' is in the path parts
+                             parts = list(image_path.parts)
+                             if 'images' in parts:
+                                 # Replace right-most 'images' with 'labels'
+                                 # (handle cases where 'images' might appear elsewhere? usually not)
+                                 # Let's find index of 'images' relative to end to be safe, or just replace last occurence
+                                 
+                                 # Using pathlib replacement relative to parent
+                                 # parent of image_path is .../images/test
+                                 # grand_parent is .../images
+                                 # if standard structure:
+                                 # .../images/test/img.jpg
+                                 
+                                 label_filename = image_path.stem + ".txt"
+                                 
+                                 # Strategy: iterate parents to find 'images' folder and swap to 'labels'
+                                 # Actually, straightforward replacement in the string path might be easiest if structure is strict.
+                                 # Let's try pathlib swap.
+                                 
+                                 # Reconstruct path replacing 'images' with 'labels'
+                                 # We assume the directory name is exactly "images"
+                                 
+                                 label_path = Path(str(image_path).replace("/images/", "/labels/")).with_suffix(".txt")
+                                 
+                                 if label_path.exists():
+                                     st.subheader("Ground Truth (True Labels)")
+                                     
+                                     gt_data = []
+                                     
+                                     # Prepare to draw GT boxes on a copy of the original image
+                                     # Need original PIL image back to numpy or draw on PIL
+                                     # Since res_image is already a result, let's reload or copy original 'image'
+                                     gt_image = image.copy()
+                                     gt_draw_np = np.array(gt_image)
+                                     
+                                     # If it's RGB (PIL default), OpenCV expects BGR usually, but we can just use BGR colors and keep it as is if we display with st.image
+                                     # However, st.image expects RGB. cv2.rectangle works on the array.
+                                     # Let's ensure it's contiguous array
+                                     gt_draw_np = np.ascontiguousarray(gt_draw_np)
+                                     
+                                     height, width, _ = gt_draw_np.shape
+                                     
+                                     with open(label_path, 'r') as f:
+                                         lines = f.readlines()
+                                         
+                                     for line in lines:
+                                         parts = line.strip().split()
+                                         if len(parts) >= 5:
+                                             cls_id = int(parts[0])
+                                             # Use model names map if available, else ID
+                                             cls_name = model.names.get(cls_id, str(cls_id)) if hasattr(model, 'names') else str(cls_id)
+                                             
+                                             # BBox is xywh normalized
+                                             cx, cy, w, h = [float(x) for x in parts[1:5]]
+                                             
+                                             # Convert to absolute xyxy for drawing
+                                             # x_c, y_c, w, h -> x1, y1, x2, y2
+                                             x1 = int((cx - w/2) * width)
+                                             y1 = int((cy - h/2) * height)
+                                             x2 = int((cx + w/2) * width)
+                                             y2 = int((cy + h/2) * height)
+                                             
+                                             gt_data.append({
+                                                 "Class": cls_name,
+                                                 "BBox (xywh norm)": [cx, cy, w, h]
+                                             })
+                                             
+                                             # Draw box (Green for GT)
+                                             # Note: PIL np array is RGB. Green is (0, 255, 0)
+                                             cv2.rectangle(gt_draw_np, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                                             
+                                             # Draw Label
+                                             label_text = f"{cls_name}"
+                                             t_size = cv2.getTextSize(label_text, 0, fontScale=0.5, thickness=1)[0]
+                                             c2 = x1 + t_size[0], y1 - t_size[1] - 3
+                                             cv2.rectangle(gt_draw_np, (x1, y1), c2, (0, 255, 0), -1, cv2.LINE_AA)  # filled
+                                             cv2.putText(gt_draw_np, label_text, (x1, y1 - 2), 0, 0.5, (0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
+
+                                             cv2.putText(gt_draw_np, label_text, (x1, y1 - 2), 0, 0.5, (0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
+
+                                     # Show GT Image in the LEFT column (Replacing Original)
+                                     img_placeholder.image(gt_draw_np, caption="Ground Truth Annotation", width='stretch')
+                                     
+                                     if gt_data:
+                                         st.dataframe(gt_data)
+                                     else:
+                                         st.info("Label file found but empty.")
+                                 else:
+                                      pass
+                         except Exception as e:
+                             st.error(f"Error loading labels: {e}")
 
     elif image is not None and not selected_model_name:
-        st.image(image, caption=f"Original: {original_image_name}", use_column_width=True)
+        st.image(image, caption=f"Original: {original_image_name}", width='stretch')
         st.warning("Please select a model to run inference.")
 
 if __name__ == "__main__":
