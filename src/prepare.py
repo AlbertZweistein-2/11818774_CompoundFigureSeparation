@@ -43,6 +43,35 @@ def main():
     download_default_dataset()
     
     print("=== Setup Complete ===")
+    print("  python src/train.py --data 05_selected_classes --name my_run")
+
+def absolutize_paths():
+    """Runs the script to make dataset paths absolute."""
+    script_path = "src/utils/absolutizeSplitPaths.py"
+    if not Path(script_path).exists():
+        print(f"Warning: {script_path} not found. Skipping path update.")
+        return
+
+    print("\n[Step 3] Updating Dataset Paths to Absolute...")
+    try:
+        subprocess.check_call([sys.executable, script_path])
+        print("Paths updated successfully.\n")
+    except subprocess.CalledProcessError as e:
+        print(f"Error updating paths: {e}")
+
+def main():
+    print("=== Training Preparation Setup ===\n")
+    
+    # 1. Install Dependencies
+    install_dependencies()
+    
+    # 2. Download Dataset
+    download_default_dataset()
+
+    # 3. Absolutize Paths
+    absolutize_paths()
+    
+    print("=== Setup Complete ===")
     print("You can now start training with:")
     print("  python src/train.py --data 05_selected_classes --name my_run")
 

@@ -1,9 +1,35 @@
-## Utils
+# Utility Scripts
 
-Helper scripts and small apps used around the dataset and labeling workflows:
+This directory contains helper scripts and tools for dataset management, processing, and other utility tasks for the Compound Figure Separation project.
 
-- **SCI3000Extractor.py** — Extract figures + captions from SCI-3000 PDFs using JSON annotations; handles resume and caption/figure cropping.
-- **SCI3000Grader.py** — Streamlit app to grade figures (accepted / compound / questionable); saves to `grading_labels.json` in the selected folder.
-- **SCI3000SingleClassificationReview.py** — Streamlit app to classify single images into the SCI-3000 label set; saves to `single_labels.json` in the folder.
-- **imageViewer.py** — Simple Streamlit viewer to page through large image folders when the file manager is impractical.
-- **make_splits_relative.py** — Rewrite YOLO split lists (train/val/test) to repo-relative paths for portability.
+## Core Utilities
+
+### Data Management
+- **`download_dataset.py`**: 
+  - Downloads the datasets from the Hugging Face repository `TobiPoni/CompoundFigureSeparation`.
+  - Supports downloading all data, standard training folders (04, 05, 06), or specific folders.
+  - Usage: `python src/utils/download_dataset.py --select default`
+
+- **`download_models.py`**:
+  - Downloads trained YOLO models from the Hugging Face repository `TobiPoni/BaseCompoundFigureSeparator`.
+  - Usage: `python src/utils/download_models.py all` or `python src/utils/download_models.py <model_name>`
+
+- **`upload_data.py`**:
+  - Uploads local datasets to the Hugging Face repository.
+  - Handles zipping of large folders to avoid file count limits.
+
+### Path Management
+- **`relativizeSplitPaths.py`**: 
+  - Updates YOLO dataset configuration files (`data.yaml`) and split text files (`train.txt`, `val.txt`, `test.txt`) to use relative paths. 
+  - Essential for making the dataset portable between different machines.
+
+- **`absolutizeSplitPaths.py`**:
+  - Converts relative paths in dataset configuration to absolute paths.
+  - Useful if a specific tool or environment requires absolute paths.
+
+## Legacy & Helper Tools
+
+- **`imageViewer.py`**: A simple Streamlit app to browse through large folders of images.
+- **`SCI3000Extractor.py`**: Tool to extract figures and captions from SCI-3000 PDFs using JSON annotations.
+- **`SCI3000Grader.py`**: Streamlit app for grading figures (accepted/compound/questionable).
+- **`SCI3000SingleClassificationReview.py`**: Streamlit app for classifying single images.
