@@ -96,13 +96,14 @@ def main():
     # Union of local found files and the known standard list
     all_model_names = sorted(list(set(local_filenames + STANDARD_MODELS)))
     
+    selected_model_name = None
+
     if not all_model_names:
         st.sidebar.warning("No models found locally or in standard list.")
-        selected_model_name = None
     else:
         # 3. Search for a model
-        # Add visual indicator for (Local) vs (Download Required)
-        display_names = []
+        display_names = ["Select a model..."]
+        
         for name in all_model_names:
             if (MODELS_DIR / name).exists():
                 display_names.append(name)
@@ -110,37 +111,47 @@ def main():
                 display_names.append(f"{name} (Download from HF)")
         
         # Map display name back to filename
-        display_map = dict(zip(display_names, all_model_names))
+        display_map = {"Select a model...": None}
+        for name in all_model_names:
+            if (MODELS_DIR / name).exists():
+                display_map[name] = name
+            else:
+                display_map[f"{name} (Download from HF)"] = name
         
-        selected_display = st.sidebar.selectbox("Select Model (Type to search)", display_names)
+        selected_display = st.sidebar.selectbox("Select Model (Type to search)", display_names, index=0)
         selected_model_name = display_map[selected_display]
         
-        # Ensure availability (Download if needed)
-        # We only check/download when they actually pick it, but for UI responsiveness 
-        # let's just resolve path. We check existence properly during inference or explicit load.
-        
-        # Display Configuration from YAML if available (Locally)
-        # If not local, we might not have the YAML yet.
-        yaml_path = (MODELS_DIR / selected_model_name).with_suffix(".yaml")
-        
-        if yaml_path.exists():
-            with open(yaml_path, 'r') as f:
-                config = yaml.safe_load(f)
-            
-            st.sidebar.subheader("Model Configuration")
-            keys_to_show = {
-                "model": "Model", 
-                "epochs": "Epochs", 
-                "data": "Dataset", 
-                "imgsz": "Image Size", 
-                "batch": "Batch Size", 
-                "close_mosaic": "Close Mosaic"
-            }
-            for key, label in keys_to_show.items():
-                if key in config:
-                    st.sidebar.text(f"{label}: {config[key]}")
-        elif selected_model_name in STANDARD_MODELS and not (MODELS_DIR / selected_model_name).exists():
-             st.sidebar.info("Select to download model and view config.")
+        # Immediate Download / Availability Check
+        if selected_model_name:
+             # Check if we need to download (doesn't exist locally)
+             if not (MODELS_DIR / selected_model_name).exists():
+                 # This downloads the model and config
+                 if ensure_model_available(selected_model_name):
+                     st.sidebar.success(f"Model downloaded!")
+             
+             # Now show config
+             yaml_path = (MODELS_DIR / selected_model_name).with_suffix(".yaml")
+             if yaml_path.exists():
+                try:
+                    with open(yaml_path, 'r') as f:
+                        config = yaml.safe_load(f)
+                    
+                    st.sidebar.subheader("Model Configuration")
+                    keys_to_show = {
+                        "model": "Model", 
+                        "epochs": "Epochs", 
+                        "data": "Dataset", 
+                        "imgsz": "Image Size", 
+                        "batch": "Batch Size", 
+                        "close_mosaic": "Close Mosaic"
+                    }
+                    for key, label in keys_to_show.items():
+                        if key in config:
+                            st.sidebar.text(f"{label}: {config[key]}")
+                except Exception:
+                    st.sidebar.warning("Could not read config file.")
+             else:
+                 st.sidebar.info("No configuration file found.")
 
     # Sidebar: Confidence Threshold
     conf_threshold = st.sidebar.slider("Confidence Threshold", 0.0, 1.0, 0.25, 0.05)
@@ -204,7 +215,7 @@ def main():
         # Display Input
         col1, col2 = st.columns(2)
         with col1:
-            st.image(image, caption=f"Original: {original_image_name}", use_container_width=True)
+             st.image(image, caption=f"Original: {original_image_name}", use_column_width=True)
 
         # Run Inference
         if st.button("Separation Analysis", type="primary"):
@@ -212,21 +223,6 @@ def main():
             model_path = ensure_model_available(selected_model_name)
             
             if model_path:
-                with st.spinner("Analyzing..."):
-                    model = load_model(model_path)
-                    
-                    # Inference
-                    results = model.predict(image, conf=conf_threshold)
-                    
-                    # Visualize
-                    res_plotted = results[0].plot()
-                    res_image = Image.fromarray(res_plotted[..., ::-1]) 
-                    
-                    with col2:
-                        st.image(res_image, caption="Detected Subplots", use_container_width=True)
-                    
-                    # Show detected boxes/classes
-                    st.subheader("Detections")
                     boxes = results[0].boxes
                     if len(boxes) > 0:
                         data = []
@@ -241,7 +237,7 @@ def main():
                         st.info("No objects detected.")
 
     elif image is not None and not selected_model_name:
-        st.image(image, caption=f"Original: {original_image_name}", use_container_width=True)
+        st.image(image, caption=f"Original: {original_image_name}", use_column_width=True)
         st.warning("Please select a model to run inference.")
 
 if __name__ == "__main__":
