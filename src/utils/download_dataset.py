@@ -59,8 +59,7 @@ def download_dataset(repo_id, destination, selection, force=False):
     snapshot_download(
         repo_id=repo_id, 
         repo_type="dataset", 
-        local_dir=dest_path, 
-        local_dir_use_symlinks=False,
+        local_dir=dest_path,
         allow_patterns=allow_patterns,
         resume_download=True,
         max_workers=8

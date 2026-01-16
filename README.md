@@ -1,4 +1,4 @@
-# 11818774_CompoundFigureSeparation
+# Compound Figure Separation
 
 **Topic:** General Scientific Compound Figure Separation  
 **Course:** Applied Deep Learning, TU Wien (WS2025)  
@@ -10,47 +10,97 @@
 ---
 
 ## Content
-1. [Problem Statement & Motivation](#1-problem-statement--motivation)
-2. [Hugging Face Repositories (Data & Models)](#2-hugging-face-repositories-data--models)
-3. [Interactive Demo Application](#3-interactive-demo-application)
-4. [Quickstart: Training Preparation](#4-quickstart-training-preparation)
-5. [Dataset Organization](#5-dataset-organization)
-6. [Project Achievements](#6-project-achievements)
-7. [Dataset Generation Methodology](#7-dataset-generation-methodology)
-8. [Data Mixing & Splitting Strategy](#8-data-mixing--splitting-strategy)
-9. [Detailed Assignment Documentation (Archive)](#9-detailed-assignment-documentation-archive)
-    - [Assignment 2 Details](#91-assignment-2-hacking--baseline-results)
-    - [Assignment 1 Proposal](#92-assignment-1-original-proposal--deliverables)
-    - [Time Tracking](#93-time-tracking-estimate)
-10. [Bibliography](#10-bibliography)
+[1 Problem Statement & Motivation](#1-problem-statement--motivation)<br>
+[2 Data- & Model- Download (Huggingface)](#2-data--model--download-huggingface) <br>
+[3 Interactive Demo Application](#3-interactive-demo-application) <br>
+[4 Quickstart: Training Preparation](#4-quickstart-training-preparation) <br>
+<span style="margin-left: 20px;"></span>
+[4.1 Environment Setup](#41-environment-setup) <br>
+<span style="margin-left: 20px;"></span>
+[4.2 Start Training](#42-start-training) <br>
+[5 Repository Structure](#5-repository-structure) <br>
+<span style="margin-left: 20px;"></span>
+[5.1 Dataset Overview](#51-dataset-overview) <br>
+<span style="margin-left: 20px;"></span>
+[5.2 Folder Structure](#52-folder-structure) <br>
+[6 Baseline Models]() <br>
+<span style="margin-left: 20px;"></span>
+[6.1 YOLOv11 and Configurations]() <br>
+<span style="margin-left: 20px;"></span>
+[6.2 Model Performance]() <br>
+[7 Learnings]() <br>
+[8 Future Work]() <br>
+[9 Detailed Documentation]() <br>
+<span style="margin-left: 20px;"></span>
+[9.1 Relevant Scientific Literature]() <br>
+<span style="margin-left: 20px;"></span>
+[9.2 Explored existing Datasets]() <br>
+<span style="margin-left: 20px;"></span>
+[9.3 Detailed Dataset Generation Strategy]() <br>
+<span style="margin-left: 40px;"></span>
+[9.3.1 SCI-3000 Figure Extraction]() <br>
+<span style="margin-left: 40px;"></span>
+[9.3.2 Real Compound Figure Labeling (Labelstudio)]() <br>
+<span style="margin-left: 40px;"></span>
+[9.3.3 Synthetic Compound Figure Stitching]() <br>
+<span style="margin-left: 40px;"></span>
+[9.3.4 Synthetic Plot Generation (matplotlib)]() <br>
+<span style="margin-left: 40px;"></span>
+[9.3.5 Dataset Assembly Strategy]() <br>
+<span style="margin-left: 40px;"></span>
+[9.3.6 ]() <br>
+<span style="margin-left: 20px;"></span>
+[9.X Time Tracking]() <br>
+[10 Bibliography](#10-bibliography)
 
 ---
 
 ## 1 Problem Statement & Motivation
-During research on extracting metadata from scientific charts in research papers, it became clear that a major bottleneck is the presence of **compound figures**. These are composite images containing multiple sub-figures or panels (charts, illustrations, biomedical scans) within a single frame.
 
-To enable automated analysis or extraction from specific components, it is necessary to first **split these compound figures into their individual parts**. While existing research heavily favors medical imagery, this project focuses on **general scientific figures**, bridging the gap with a dedicated dataset and YOLO-based detection model.
+During my bachelor thesis on extracting metadata from scientific charts, I encountered a significant bottleneck: the prevalence of **compound figures**. These are composite images that bundle multiple sub-figures or panels, such as charts, illustrations, or biomedical scans, into a single Figure.
+
+This project addresses the critical need for automated **compound figure separation**. Most downstream tasks, including **chart understanding, OCR, table extraction, and figure-type classification**, assume individual figures as input. Without robust separation, automation pipelines break at the first step, leaving scientific figures largely inaccessible for large-scale analytics.
+
+While existing research heavily favors medical imagery, this project focuses on **general scientific figures**, bridging the gap with a dedicated dataset and a YOLO-based detection model capable of splitting complex figures into their individual components.
 
 ---
 
-## 2 Hugging Face Repositories (Data & Models)
+## 2 Data- & Model- Download <img src="docs/assets/hf-logo.png" style="vertical-align: bottom" height="25px">
+The created datasets and trained models are hosted for download on [Hugging Face](https://huggingface.co/) (README Files still to publish):
 
-The large-scale data and trained weights are hosted externally on Hugging Face:
+The **Dataset** can be downloaded as multiple ZIP files, including images and labels at:
+[<img src="docs/assets/hf-logo.png" style="vertical-align: bottom" height="20px"> CompoundFigureSeparation](https://huggingface.co/datasets/TobiPoni/CompoundFigureSeparation)
 
-- **🤗 Dataset:** [TobiPoni/CompoundFigureSeparation](https://huggingface.co/datasets/TobiPoni/CompoundFigureSeparation)
-- **🤗 Models:** [TobiPoni/BaseCompoundFigureSeparator](https://huggingface.co/TobiPoni/BaseCompoundFigureSeparator)
+The "to beat" **Baseline Models** can be downloaded at:
+[<img src="docs/assets/hf-logo.png" style="vertical-align: bottom" height="20px"> BaseCompoundFigureSeparator](https://huggingface.co/TobiPoni/BaseCompoundFigureSeparator)
 
 **Local Download Tools:**
-- Dataset: `python src/utils/download_dataset.py --select default`
-- Models: `python src/utils/download_models.py all`
+You can also use the local scripts to easily setup your environment ([Quickstart: Training Preparation](#4-quickstart-training-preparation)) and download the
+**[Dataset](src/utils/download_dataset.py):**
+```bash
+python src/utils/download_dataset.py --select default #To download datasets 04, 05 and 06
+python src/utils/download_dataset.py <dataset_nr> #To download a specific dataset
+```
+and/or the **[Models](src/utils/download_models.py):**
+```bash
+python src/utils/download_models.py all #To download all models
+python src/utils/download_models.py <model_name> #To download a specific model
+```
+
 
 ---
 
 ## 3 Interactive Demo Application
 
-A Streamlit-based demo application is included to run inference on custom images or the test set. It features automatic model fetching from Hugging Face and side-by-side ground truth comparison.
+The repository includes a [Streamlit-based demo application](src/demo_app.py) designed to demonstrate the practical application of the trained models and visualize the compound figure separation process.
 
-**Run command:**
+**Key Features:**
+- **Dynamic Model Selection:** Choose from various baseline models; the application automatically fetches them from Hugging Face upon selection.
+- **Flexible Input:** Run inference on sample images from the included datasets or upload your own scientific figures for processing.
+- **Side-by-Side Visualization:** Compare model-predicted bounding boxes against ground truth annotations to evaluate performance.
+- **Configuration Transparency:** Displays the underlying model architecture and configuration (YOLO `.yaml`) directly in the interface.
+
+To **run the demo** locally, you have to clone this repository and run the following command:
 ```bash
 streamlit run src/demo_app.py
 ```
@@ -58,124 +108,190 @@ streamlit run src/demo_app.py
 ---
 
 ## 4 Quickstart: Training Preparation
+### 4.1 Environment Setup
+To quickly start training a model, you can execute the [prepare.py](src/prepare.py) script. This script ensures all dependencies are met, downloads the default datasets (04, 05, and 06), and converts file paths to absolute format so training can start immediately.
 
-Follow these steps to quickly set up the environment and start training:
+It is recommended to use a virtual environment:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python src/prepare.py
+```
 
-1.  **Environment Setup:**
-    ```bash
-    python3 -m venv .venv
-    source .venv/bin/activate
-    pip install -r requirements.txt
-    ```
+### 4.2 Start Training
+Run the [train.py](src/train.py) script to train a YOLO model on your selected dataset.
+```bash
+python src/train.py --data 05_selected_classes --name "my_first_run" --epochs 50 --batch 16
+```
 
-2.  **One-Click Prepare:**  
-    Downloads the training data, fixes relative paths to absolute, and checks integrity.
-    ```bash
-    python src/prepare.py
-    ```
-
-3.  **Start Training:**
-    ```bash
-    python src/train.py --data 05_selected_classes --epochs 50 --batch 16
-    ```
-
----
-
-## 5 Dataset Organization
-
-The data is materialized into three specialized variants for different research needs:
-
-- **`04_all_classes`**: The complete set of labeled classes (Chart, Illustration, Image, Table, Text, Subpanel, Legend, Titles, Axes).
-- **`05_selected_classes`**: A high-level subset optimized for parsing multi-panel layouts (Chart, Illustration, Image, Table). **Recommended as a general-purpose detector.**
-- **`06_compound_chart_splitter`**: A specialized dataset containing only charts and their internal sub-elements (X-Axis, Y-Axis, Legend, Title) for deep analysis of chart components.
-
----
-
-## 6 Project Achievements
-
-During this project, we:
-1.  Extracted and curated a hybrid (real+synthetic) dataset for scientific figure detection.
-2.  Implemented a robust data engineering pipeline for automated generation and assembly.
-3.  Trained a suite of YOLOv11 models (Nano to Medium) achieving an mAP50-95 of 0.58 on general classes.
-4.  Created a portable ecosystem with easy data/model downloads and an interactive demo app.
+**Training Options:**
+For a full list of available arguments and their defaults, use the help flag:
+```bash
+python src/train.py -h
+```
+| Argument | Description |
+| :--- | :--- |
+| `--data` | Path to `data.yaml` or dataset folder name (e.g., `04_all_classes`) |
+| `--name` | Name for this training run |
+| `--model` | YOLO model variant (e.g., `yolo11n.pt`, `yolo11s.pt`) |
+| `--epochs` | Number of training epochs |
+| `--batch` | Batch size for training |
+| `--imgsz` | Image size for inference (e.g., `960`) |
+| `--device` | CUDA device (e.g. `0`) or `cpu` |
 
 ---
 
-## 7 Dataset Generation Methodology
+## 5 Repository Structure
+### 5.1 Dataset Overview
+The open sourced dataset covers six different versions of the dataset, all stored in the `dataset/` folder, downloadable from Hugging Face (see [Data- & Model- Download](#2-data--model--download)). Model ready datasets are 04_all_classes, 05_selected_classes and 06_selected_classes.
 
-The dataset was constructed through a rigorous process of extraction, manual grading, and synthetic augmentation.
+#### 5.1.1 Pre Datasets
+The pre datasets are the datasets that were used to create the model ready datasets.
+##### 5.1.1.1 `01_raw` (to be uploaded)
+This directory contains the raw images, extracted from the SCI-3000 PDFs. There are a total of 9505 images extracted from the PDFs.
 
-### 7.1 Extraction and Manual Grading
-*   **Real Figure Extraction:** Figures were extracted from the *SCI-3000* dataset using PDF parsing tools.
-*   **Initial Curation:** Approximately **2,500** figures were manually reviewed and labeled as "useful".
-*   **Type Separation:** From this pool, **1,160** images were identified as singles (atomic) and approx. **700** were identified as real compound figures.
+##### 5.1.1.2 `02_assets`
+This directory contains the as **Singles** labeled figures from the SCI-3000 (~1.100 images) dataset, which were hand labeled as `Chart`, `Illustration`, `Image`, `Table` or `Other`. 
+It also contains real compound Figures from the MedICaT dataset, which were not used yet, due to their inconsistent quality of their labels.
 
-### 7.2 Annotation
-*   **Real Compounds:** The 700 real compound figures were manually annotated with bounding boxes using **Label Studio** [[6]](#bibliography).
-*   **Synthetic Plots:** **2,500** synthetic charts were generated using Matplotlib with varying layouts, noise, and styles to provide ground truth for chart internal elements.
+##### 5.1.1.3 `03_intermediate`
+The intermediate directory contains
+1. `SCI-3000_real-compound`:
+This Folder contains the real compound figures extracted from the SCI-3000 dataset, including the label-studio export. ~ 700 images were labeled in label-studio with bounding boxes for 
+- `Chart`
+- `Illustration`
+- `Image`
+- `Other`
+- `Shared legend`
+- `Shared Title`
+- `Shared X-Axis`
+- `Shared Y-Axis`
+- `Subpanel`
+- `Other`
+<img src="docs/assets/SCI-3000_examples/real_compound/0b81f25ec14c48f1bbbc3e6c51c603e5-14-fig-0.png" width="500">
 
-### 7.3 Synthetic Assembly
-*   **Stitched Figures:** The 1,160 real single figures were programmatically stitched into **~10,000 synthetic compound figures**, providing a massive increase in training variety with automatic labels.
+2. `SCI-3000_synthetic-generated`: This directory contains the **10.000** synthetically stitched together compound images, that were generated using the singles from the SCI-3000 dataset, stored in `02_assets/SCI-3000_singles`. The folder contains the images, a yolo-labels folder and a `synthetic_labels.json` file.
+<img src="docs/assets/SCI-3000_examples/synthetic_compound/synth_000000.jpg" width="500">
+Read the [Detailed Documentation here]().
+
+3. `SyntheticCompoundPlots`: During training tests, there was a lack of performance especially in identifying *Shared Titles*, *Shared Legends*, *Shared Axes* and *Sub Panels* in charts, therefore the dataset was extended by 2.500 synthetically generated compound charts, with varying sub-panel configurations. The folder contains the images and a yolo-labels folder.
+<img src="docs/assets/SCI-3000_examples/snythetic_compound_plots/synth_plot_00000.png" width="500">
+Read the [Detailed Documentation here]().
+
+#### 5.1.2 Model Ready Datasets
+The model ready datasets all include the images and a yolo-labels folder, as well as a `data.yaml` file, a `test.txt`, a `train.txt` and a `val.txt` file. All dataset splits were generated using the [04_Dataset_Assembly.ipynb](notebooks/04_Dataset_Assembly.ipynb) notebook and have a train/val/test split. The train split contains synthetically generated compound images and real compound images, while the val and test splits only contain real compound images.
+##### 5.1.2.1 `04_all_classes`
+This directory contains the final dataset, which is a combination of the real compound figures from the SCI-3000 dataset, the synthetically generated compound figures (stitched SCI-3000 Singles) and the synthetic compound plots. The folder contains the images and a yolo-labels folder. For this dataset, all classes were kept. This Folder contains
+```
+04_all_classes/
+├──images/
+├──yolo-labels/
+├──data.yaml
+├──test.txt
+├──train.txt
+└──val.txt
+```
+**Focus:** Sparate compound Figures into all their present sub-objects (e.g. `Chart`, `Illustration`, `Image`, `Table`, `Other`, `Shared legend`, `Shared title`, `Shared x-axis`, `Shared y-axis`, `Subpanel`)
+> **⚠️ Important Note:** Due to class inbalances, oversampling and stratified splits were performed, to tackle bias in the training process. Also, 50 synthetic compound images including `Table` boxes were added to the validation and test set splits, due to the scarcity of real compound images with `Table` boxes.
+
+##### 5.1.2.2 `05_selected_classes`
+This directory contains the same images as `04_all_classes`, but only the following classes (high level) classes were kept:
+- `Chart`
+- `Illustration`
+- `Image`
+- `Other`
+- `Table` (remapped)
+
+```
+05_selected_classes/
+├──images/
+├──yolo-labels/
+├──data.yaml
+├──test.txt
+├──train.txt
+└──val.txt
+```
+**Focus:** Separate compound Figures into their high level sub-objects (e.g. `Chart`, `Illustration`, `Image`, `Table`, `Other`)
+> **⚠️ Important Note:** Due to class inbalances, oversampling and stratified splits were performed, to tackle bias in the training process. Also, 50 synthetic compound images including `Table` boxes were added to the validation and test set splits, due to the scarcity of real compound images with `Table` boxes.
+
+
+##### 5.1.2.3 `06_compound_chart_splitter`
+This directory contains the dataset that focuses on splitting charts into their sub-objects. It only contains a selection from the images of the `04_all_classes` dataset, namely the ones with only `Charts` in them. The labels then only contain the clases:
+- `Shared Legend`
+- `Shared Title`
+- `Shared X-Axis`
+- `Shared Y-Axis`
+- `Subpanel`
+
+```
+06_compound_chart_splitter/
+├──images/
+├──yolo-labels/
+├──data.yaml
+├──test.txt
+├──train.txt
+└──val.txt
+```
+
+**Focus:** Separate Charts into their building blocks (subpanels, shared axes, shared titles, shared legends).
+> **⚠️ Important Note:** Due to shortages of hand labeled compound charts, the validation and test splits contain only very few images, and there might be more work to do to improve the model's performance (e.g. less real compound charts in train dataset, hand label more real compound charts from SCI-3000, etc.).
+### 5.2 Folder Structure
+Below is a classic repository overview:
+```
+11818774_CompoundFigureSeparation/
+├── dataset/                                # Where the dataset will be downloaded to
+├── docs/
+│   ├── assets/                             # Holds example images
+│   └── metrics/                            # Holds results of the models on the test set
+├── models/                                 # Where models will be downloaded to
+├── src/                                    # Includes all the source code
+│   ├── archive/                            # Old scripts
+│   ├── generators/                         # Code for generators used to create synthetic data
+│   ├── notebooks/                          # All notebooks used in the project
+│   ├── utils/                              # Other utility scripts
+│   ├── demo_app.py
+│   ├── prepare.py
+│   └── train.py
+├── tests/                                  # Unit tests to verify dataset and GPU availability
+│   ├── test_dataset_integrity.py
+│   └── test_gpu_availability.py
+├── data_links/                             # Linked large external datasets
+│   └── data/
+│       ├── medicat_release/
+│       │   ├── figures/
+│       │   ├── roco_references/
+│       │   ├── medicat_grading.json        # Custom grading file for image quality
+│       │   ├── s2_full_figures_oa_nonroco_combined_medical_top4_public.jsonl
+│       │   └── subcaptions_public.jsonl
+│       └── SCI-3000/
+│           ├── Annotations/
+│           ├── FiguresRaw/
+│           ├── PDFs/
+│           ├── interesting_pages.md
+│           ├── LICENCE
+│           ├── README.md
+│           ├── sci-3000-page-metadata.parquet
+│           └── sci-3000-pdf-metadata.parquet
+└── requirements.txt                         # Project dependencies
+```
 
 ---
 
-## 8 Data Mixing & Splitting Strategy
-
-The final training data utilizes a sophisticated mixing strategy to ensure high performance on rare classes and robust validation.
-
-### 8.1 Oversampling & Stratified Splitting
-*   **Real Data Focus:** The real compound figures (annotated in Label Studio) were split into Train, Val, and Test sets using **stratified splitting** based on the presence of sub-figure types.
-*   **Training Augmentation:** The training set was supplemented with oversampled synthetic data to handle class imbalances.
-
-### 8.2 Synthetic Injection for Rare Classes
-*   **Class Balancing:** Classes that were under-represented in the real compound set (e.g., **Tables**) were boosted using synthetic samples.
-*   **Validation Integrity:** Specifically for **Tables**, 50 synthetic samples were injected into each of the Validation and Test sets to ensure the model's ability to generalize to these types could be measured reliably.
+## 6 Baseline Models
+### 6.1 YOLOv11 and Configurations
+For a first baseline, YOLOv11 was used for object detection. Multiple different configurations were tested on the 
+### 6.2 Model Performance
 
 ---
 
-## 9 Detailed Assignment Documentation (Archive)
+## 7 Learnings
 
-### 9.1 Assignment 2: Hacking & Baseline Results
 
-For Assignment 2, the focus was on **Data Engineering** and establishing a **Baseline Model**.
-- **Metric:** mAP50-95 (Target 0.50, Achieved 0.58).
-- **Optimization:** Scaling from Nano $\to$ Small and increasing resolution from 640px $\to$ 960px was critical.
-- **Hardware:** Training on RTX 3090, ~1.7h for 40 epochs.
+## 8 Future Work
 
-### 9.2 Assignment 1: Original Proposal & Deliverables
 
-#### deliverables
-- Topic: General Scientific Compound Figure Separation.
-- Project type: Bring your own data (synthetic + real-world).
-- Idea: Build and release a dataset for **general** compound figures and fine-tune a YOLO detector.
+## 9 Detailed Documentation
 
-#### Original Work-Breakdown Structure
-| Task | What’s included | Estimate |
-|---|---|---|
-| Dataset: synthetic generation | composition scripts, layouts, noise/spacing | **5-6 days** |
-| Dataset: real extraction | PDF parsing (Docling), filtering, curation | **3-4 days** |
-| Dataset: manual labeling | Label the extracted figures | **5-6 days** |
-| Model design & setup | Select YOLO variant, configure data pipeline | **1–2 days** |
-| Training & fine-tuning | baseline runs, tweaks, checkpoints | **2-4 days** |
-| Evaluation | metrics, error analysis on real test set | **2-4 days** |
-| Minimal application | demo to run on new images | **1-2 days** |
-| Final report | concise write-up | **1-2 days** |
-| Presentation | 6–8 slides with demo screenshots | **1 day** |
-
-### 9.3 Time Tracking (Estimate)
-| Task | Time Spent |
-|---|---|
-| Data review and initial evaluation| ~8h |
-| SCI-3000 Data extraction and first evaluation | ~ 10h |
-| Dataset Generation (Synthetic) | ~5h |
-| Real Compound Figure labeling (Label Studio) | ~20h |
-| Pipeline & Splitting Logic | ~8h |
-| Model Training & Debugging | ~8h |
-| Repository Cleanup and Documentation | ~Xh |
-| Final Dataset preparation and release | ~Xh |
-| **Total** | **~XXh** |
-
----
 
 ## 10 Bibliography
 [1] Tianyuan Yao, et al. **Compound Figure Separation of Biomedical Images with Side Loss.** *arXiv preprint arXiv:2107.08650*, 2021.
