@@ -22,6 +22,7 @@
 [6 Baseline Models](#6-baseline-models)<br>
 <span style="margin-left: 20px;"></span>[6.1 YOLO Version](#61-yolo-version)<br>
 <span style="margin-left: 20px;"></span>[6.2 Training Configurations and Results](#62-training-configurations-and-results)<br>
+<span style="margin-left: 20px;"></span>[6.3 Qualitative Prediction Examples](#63-qualitative-prediction-examples)<br>
 [7 Future Work](#7-future-work)<br>
 [8 Detailed Documentation](#8-detailed-documentation)<br>
 <span style="margin-left: 20px;"></span>[8.1 Pipeline Overview](#81-pipeline-overview)<br>
@@ -32,7 +33,6 @@
 <span style="margin-left: 20px;"></span>[8.6 Synthetic Compound Chart Generation (Controlled Structures)](#86-synthetic-compound-chart-generation-controlled-structures)<br>
 <span style="margin-left: 20px;"></span>[8.7 Dataset Assembly into YOLO-Ready Versions (Notebook-Based)](#87-dataset-assembly-into-yolo-ready-versions-notebook-based)<br>
 <span style="margin-left: 20px;"></span>[8.8 Final Dataset Definitions](#88-final-dataset-definitions)<br>
-
 <span style="margin-left: 20px;"></span>[8.9 Time Tracking](#89-time-tracking)<br>
 [10 Bibliography](#10-bibliography)
 
@@ -295,6 +295,7 @@ The best checkpoint per run was selected based on **validation mAP50–95** and 
 - Model scaling alone does not overcome data limitations.
 
 <img src="docs/metrics/per_class_performance.png" width="600">
+
 ### 6.3 Qualitative Prediction Examples
 
 #### `04_all_classes`
