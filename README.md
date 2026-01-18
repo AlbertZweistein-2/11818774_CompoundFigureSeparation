@@ -10,30 +10,30 @@
 ---
 
 ## Content
-[1 Problem Statement & Motivation](#1-problem-statement--motivation)
-[2 Data- & Model- Download](#2-data---model--download)
-[3 Interactive Demo Application](#3-interactive-demo-application)
-[4 Quickstart: Training Preparation](#4-quickstart-training-preparation)
-<span style="margin-left: 20px;"></span>[4.1 Environment Setup](#41-environment-setup)
-<span style="margin-left: 20px;"></span>[4.2 Start Training](#42-start-training)
-[5 Repository Structure](#5-repository-structure)
-<span style="margin-left: 20px;"></span>[5.1 Dataset Overview](#51-dataset-overview)
-<span style="margin-left: 20px;"></span>[5.2 Folder Structure](#52-folder-structure)
-[6 Baseline Models](#6-baseline-models)
-<span style="margin-left: 20px;"></span>[6.1 YOLO Version](#61-yolo-version)
-<span style="margin-left: 20px;"></span>[6.2 Training Configurations and Results](#62-training-configurations-and-results)
-[7 Future Work](#7-future-work)
-[8 Detailed Documentation](#8-detailed-documentation)
-<span style="margin-left: 20px;"></span>[8.1 Pipeline Overview](#81-pipeline-overview)
-<span style="margin-left: 20px;"></span>[8.2 Data Sources and Raw Extraction](#82-data-sources-and-raw-extraction)
-<span style="margin-left: 20px;"></span>[8.3 Building the Asset Pool (Single Figures) → `02_assets`](#83-building-the-asset-pool-single-figures--02_assets)
-<span style="margin-left: 20px;"></span>[8.4 Real Compound Figure Annotation (Label Studio) → `03_intermediate/SCI-3000_real-compound`](#84-real-compound-figure-annotation-label-studio--03_intermediatesci-3000_real-compound)
-<span style="margin-left: 20px;"></span>[8.5 Synthetic Compound Figure Generation (Stitched Singles)](#85-synthetic-compound-figure-generation-stitched-singles)
-<span style="margin-left: 20px;"></span>[8.6 Synthetic Compound Chart Generation (Controlled Structures)](#86-synthetic-compound-chart-generation-controlled-structures)
-<span style="margin-left: 20px;"></span>[8.7 Dataset Assembly into YOLO-Ready Versions (Notebook-Based)](#87-dataset-assembly-into-yolo-ready-versions-notebook-based)
-<span style="margin-left: 20px;"></span>[8.8 Final Dataset Definitions](#88-final-dataset-definitions)
+[1 Problem Statement & Motivation](#1-problem-statement--motivation)<br>
+[2 Data- & Model- Download](#2-data---model--download)<br>
+[3 Interactive Demo Application](#3-interactive-demo-application)<br>
+[4 Quickstart: Training Preparation](#4-quickstart-training-preparation)<br>
+<span style="margin-left: 20px;"></span>[4.1 Environment Setup](#41-environment-setup)<br>
+<span style="margin-left: 20px;"></span>[4.2 Start Training](#42-start-training)<br>
+[5 Repository Structure](#5-repository-structure)<br>
+<span style="margin-left: 20px;"></span>[5.1 Dataset Overview](#51-dataset-overview)<br>
+<span style="margin-left: 20px;"></span>[5.2 Folder Structure](#52-folder-structure)<br>
+[6 Baseline Models](#6-baseline-models)<br>
+<span style="margin-left: 20px;"></span>[6.1 YOLO Version](#61-yolo-version)<br>
+<span style="margin-left: 20px;"></span>[6.2 Training Configurations and Results](#62-training-configurations-and-results)<br>
+[7 Future Work](#7-future-work)<br>
+[8 Detailed Documentation](#8-detailed-documentation)<br>
+<span style="margin-left: 20px;"></span>[8.1 Pipeline Overview](#81-pipeline-overview)<br>
+<span style="margin-left: 20px;"></span>[8.2 Data Sources and Raw Extraction](#82-data-sources-and-raw-extraction)<br>
+<span style="margin-left: 20px;"></span>[8.3 Building the Asset Pool (Single Figures) → `02_assets`](#83-building-the-asset-pool-single-figures--02_assets)<br>
+<span style="margin-left: 20px;"></span>[8.4 Real Compound Figure Annotation (Label Studio) → `03_intermediate/SCI-3000_real-compound`](#84-real-compound-figure-annotation-label-studio--03_intermediatesci-3000_real-compound)<br>
+<span style="margin-left: 20px;"></span>[8.5 Synthetic Compound Figure Generation (Stitched Singles)](#85-synthetic-compound-figure-generation-stitched-singles)<br>
+<span style="margin-left: 20px;"></span>[8.6 Synthetic Compound Chart Generation (Controlled Structures)](#86-synthetic-compound-chart-generation-controlled-structures)<br>
+<span style="margin-left: 20px;"></span>[8.7 Dataset Assembly into YOLO-Ready Versions (Notebook-Based)](#87-dataset-assembly-into-yolo-ready-versions-notebook-based)<br>
+<span style="margin-left: 20px;"></span>[8.8 Final Dataset Definitions](#88-final-dataset-definitions)<br>
 
-<span style="margin-left: 20px;"></span>[8.X Time Tracking]()
+<span style="margin-left: 20px;"></span>[8.9 Time Tracking](#89-time-tracking)<br>
 [10 Bibliography](#10-bibliography)
 
 ---
