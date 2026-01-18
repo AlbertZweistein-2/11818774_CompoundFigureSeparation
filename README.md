@@ -154,7 +154,7 @@ This Folder contains the real compound figures extracted from the SCI-3000 datas
 <img src="docs/assets/SCI-3000_examples/real_compound/0b81f25ec14c48f1bbbc3e6c51c603e5-14-fig-0.png" width="300">
 
 2. `SCI-3000_synthetic-generated`: This directory contains the **10.000** synthetically stitched together compound images, that were generated using the singles from the SCI-3000 dataset[8], stored in `02_assets/SCI-3000_singles`. The folder contains the images, a yolo-labels folder and a `synthetic_labels.json` file.
-<img src="docs/assets/SCI-3000_examples/synthetic_compound/synth_000000.jpg" width="600">
+<img src="docs/assets/SCI-3000_examples/synthetic_compound/synth_000000.jpg" width="800">
 Read the [Detailed Documentation here]().
 
 3. `SyntheticCompoundPlots`: During training tests, there was a lack of performance especially in identifying *Shared Titles*, *Shared Legends*, *Shared Axes* and *Sub Panels* in charts, therefore the dataset was extended by 2.500 synthetically generated compound charts, with varying sub-panel configurations. The folder contains the images and a yolo-labels folder.
@@ -294,37 +294,36 @@ The best checkpoint per run was selected based on **validation mAP50–95** and 
 - Fine-grained structural detection remains challenging.
 - Model scaling alone does not overcome data limitations.
 
-<img src="docs/metrics/per_class_performance.png" width="600">
+<img src="docs/metrics/per_class_performance.png" width="900">
 
 ### 6.3 Qualitative Prediction Examples
 
 #### `04_all_classes`
 
-<img src="docs/assets/04_all_classes_predictions/compound_yolo11s_sim2real_15c32c170ba24d12b329b4658ba787a0-11-fig-1.png" width="600">
+<img src="docs/assets/04_all_classes_predictions/compound_yolo11s_sim2real_15c32c170ba24d12b329b4658ba787a0-11-fig-1.png" width="900">
 
-<img src="docs/assets/04_all_classes_predictions/compound_yolo11s_sim2real_20a6b762764340b5acaec79abe163445-03-fig-1.png" width="600">
+<img src="docs/assets/04_all_classes_predictions/compound_yolo11s_sim2real_20a6b762764340b5acaec79abe163445-03-fig-1.png" width="900">
 
-<img src="docs/assets/04_all_classes_predictions/compound_yolo11s_sim2real_2b3cef3119e94e2eba28767b855e5dfb-3-fig-0.png" width="600">
-
-<img src="docs/assets/04_all_classes_predictions/compound_yolo11s_sim2real_36708341fb40497f8a908c882e9d547c-06-fig-0.png" width="600">
+<img src="docs/assets/04_all_classes_predictions/compound_yolo11s_sim2real_2b3cef3119e94e2eba28767b855e5dfb-3-fig-0.png" width="900">
+<img src="docs/assets/04_all_classes_predictions/compound_yolo11s_sim2real_36708341fb40497f8a908c882e9d547c-06-fig-0.png" width="900">
 
 
 #### `05_selected_classes`
 
-<img src="docs/assets/05_selected_classes_predictions/compound_figure_separator_selected_classes_yolo11n_1280_batch16_1469074e53e942408763bd949f33736a-07-fig-1.png" width="600">
-<img src="docs/assets/05_selected_classes_predictions/compound_figure_separator_selected_classes_yolo11n_1280_batch16_1f70ca21bbce4a3a920996e6d28c37ba-5-fig-1.png" width="600">
-<img src="docs/assets/05_selected_classes_predictions/compound_figure_separator_selected_classes_yolo11n_1280_batch16_042a4428a8044e7ebe8b79ba38b89149-10-fig-1.png" width="600">
+<img src="docs/assets/05_selected_classes_predictions/compound_figure_separator_selected_classes_yolo11n_1280_batch16_1469074e53e942408763bd949f33736a-07-fig-1.png" width="900">
+<img src="docs/assets/05_selected_classes_predictions/compound_figure_separator_selected_classes_yolo11n_1280_batch16_1f70ca21bbce4a3a920996e6d28c37ba-5-fig-1.png" width="900">
+<img src="docs/assets/05_selected_classes_predictions/compound_figure_separator_selected_classes_yolo11n_1280_batch16_042a4428a8044e7ebe8b79ba38b89149-10-fig-1.png" width="900">
 
-<img src="docs/assets/05_selected_classes_predictions/compound_figure_separator_selected_classes_yolo11n_1280_batch16_synth_006589.png" width="600">
+<img src="docs/assets/05_selected_classes_predictions/compound_figure_separator_selected_classes_yolo11n_1280_batch16_synth_006589.png" width="900">
 
 #### `06_compound_chart_splitter`
 
-<img src="docs/assets/06_compound_chart_splitter_predictions/compound_chart_splitter_yolo11n_1280_batch16_343e53a209aa4351bda1aa8d4ddb0242-07-fig-2.png" width="600">
-<img src="docs/assets/06_compound_chart_splitter_predictions/compound_chart_splitter_yolo11n_1280_batch16_21851b6ee52d4d3588780957206fad72-09-fig-1.png" width="600">
-<img src="docs/assets/06_compound_chart_splitter_predictions/compound_chart_splitter_yolo11n_1280_batch16_3580851fb8904c18892ff069b6abe2f9-05-fig-1.png" width="600">
-<img src="docs/assets/06_compound_chart_splitter_predictions/compound_chart_splitter_yolo11n_1280_batch16_26c0e164a55b42098ce600beaf9ee651-08-fig-0.png" width="600">
+<img src="docs/assets/06_compound_chart_splitter_predictions/compound_chart_splitter_yolo11n_1280_batch16_343e53a209aa4351bda1aa8d4ddb0242-07-fig-2.png" width="900">
+<img src="docs/assets/06_compound_chart_splitter_predictions/compound_chart_splitter_yolo11n_1280_batch16_21851b6ee52d4d3588780957206fad72-09-fig-1.png" width="900">
+<img src="docs/assets/06_compound_chart_splitter_predictions/compound_chart_splitter_yolo11n_1280_batch16_3580851fb8904c18892ff069b6abe2f9-05-fig-1.png" width="900">
+<img src="docs/assets/06_compound_chart_splitter_predictions/compound_chart_splitter_yolo11n_1280_batch16_26c0e164a55b42098ce600beaf9ee651-08-fig-0.png" width="900">
 
-<img src="docs/assets/06_compound_chart_splitter_predictions/compound_chart_splitter_yolo11n_1280_batch16_36d4bc798bbe448c9ec22195cc31f997-08-fig-0.png" width="600">
+<img src="docs/assets/06_compound_chart_splitter_predictions/compound_chart_splitter_yolo11n_1280_batch16_36d4bc798bbe448c9ec22195cc31f997-08-fig-0.png" width="900">
 
 ---
 
