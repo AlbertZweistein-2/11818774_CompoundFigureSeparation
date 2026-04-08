@@ -263,7 +263,7 @@ This directory contains the dataset that focuses on splitting charts into their 
 
 ### 6.1 YOLO Version
 
-All baseline experiments were conducted using **YOLOv11** from the Ultralytics framework (`ultralytics v8.3.241`) [CITE!].  
+All baseline experiments were conducted using **YOLOv11** from the Ultralytics framework (`ultralytics v8.3.241`).  
 YOLO was chosen as a strong single-stage object detector to validate the dataset and characterize task difficulty.
 
 The following model variants were evaluated:
